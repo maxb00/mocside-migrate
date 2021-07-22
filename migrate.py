@@ -105,8 +105,8 @@ def find_course_id(connection, data):
     SELECT id
     FROM courses
     WHERE
-      `name` = '{data[0]}'
-      AND `created_at` = '{data[1]}'
+      `name` = '{data[0][0]}'
+      AND `created_at` = '{data[0][1]}'
     LIMIT 1;
     """
     result = execute_read_query(connection, query)
