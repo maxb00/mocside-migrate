@@ -9,7 +9,7 @@ from functools import cache # @cache decorator will save redoing queries.
 
 FILENAME = "CSC2290_questions-truncated.json"  # TODO: Make arg.
 now = datetime.now()
-now_format = now.strftime("$d/%m/%Y %H:%M:S")
+now_format = now.strftime("%d/%m/%Y %H:%M:%S")
 
 # create assingment from data
 def create_assignment(connection, assingment_name, lab_id, data):
