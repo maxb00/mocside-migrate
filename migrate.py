@@ -5,16 +5,16 @@ import json
 import mysql.connector
 from mysql.connector import Error
 from datetime import datetime
-import functools # @cache decorator will save redoing queries.
+from functools import cache # @cache decorator will save redoing queries.
 
-FILENAME = "CSC2290_questions.json"  # TODO: Make arg.
+FILENAME = "CSC2290_questions-truncated.json"  # TODO: Make arg.
 now = datetime.now()
 now_format = now.strftime("$d/%m/%Y %H:%M:S")
 
 # create assingment from data
 def create_assignment(connection, assingment_name, lab_id, data):
     lang, starter, model = data
-    if lang = 'java':
+    if lang == 'java':
         query = f"""
         INSERT INTO
           `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`, `created_at`, `updated_at`)
@@ -54,11 +54,11 @@ def create_lab(connection, course_id, lab_name):
 
 # create test case from payload
 def create_test_case(connection, problem_id, data):
-    title, points, in, out, feedback, compare = data
+    title, points, input, out, feedback, compare = data
     query = f"""
     INSERT INTO
       `test_cases` (`title`, `assingment_id`, `input`, `output`, `points`, `compare_method`, `feedback`, `created_at`, `updated_at`)
-    VALUES ('{title}', {problem_id}, '{in}', '{out}', {points}, '{compare}', '{feedback}', '{now_format}', '{now_format}');
+    VALUES ('{title}', {problem_id}, '{input}', '{out}', {points}, '{compare}', '{feedback}', '{now_format}', '{now_format}');
     """
     execute_query(connection, query)
 
@@ -152,8 +152,8 @@ def parse_problem_data(data):
     return [(lang, starter, model), data]
 
 def main():
-    connection = create_connection("localhost", "root", "")
-    with open(FILENAME) as f:
+    connection = create_connection("localhost", "admin", "Floridasouthern1!")
+    with open(FILENAME, encoding="utf8") as f:
         data = json.load(f)
 
     # first, we need to create the course.
@@ -208,9 +208,9 @@ def main():
             tc_compare = tc['stdoutCompareMethod']
             # we have to parse stdoutCompareMethod further
             # not having python 3.10 here is a BUMMER -> TODO: implement match (3.10)
-            if tc_compare = 'equals_flexible':
+            if tc_compare == 'equals_flexible':
                 tc_compare = 'flexible'
-            else if tc_compare = 'equals':
+            elif tc_compare == 'equals':
                 tc_compare = 'exact'
             # else, leave it and deal after, I guess. Regex is in form.
             # we are ready for an insert
