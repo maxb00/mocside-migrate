@@ -153,6 +153,7 @@ def parse_problem_data(data):
 
 def main():
     connection = create_connection("localhost", "admin", "Floridasouthern1!")
+    execute_query(connection, 'use mocside;')
     with open(FILENAME, encoding="utf8") as f:
         data = json.load(f)
 
