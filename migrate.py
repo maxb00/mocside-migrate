@@ -12,15 +12,13 @@ now = datetime.now()
 now_format = now.strftime("%Y-%m-%d %H:%M:%S")
 description = json.dumps({
     "type": "doc",
-    "content": [
-        {
-            'type': 'paragraph',
-            "content": {
-                "text": "Imported from Coding Rooms",
-                "type": 'text'
-            }
+    "content": {
+        'type': 'paragraph',
+        "content": {
+            "text": "Imported from Coding Rooms",
+            "type": 'text'
         }
-    ]
+    }
 })
 
 # create assignment from data
