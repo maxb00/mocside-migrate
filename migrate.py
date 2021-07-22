@@ -10,6 +10,18 @@ from functools import cache # @cache decorator will save redoing queries.
 FILENAME = "CSC2290_questions-truncated.json"  # TODO: Make arg.
 now = datetime.now()
 now_format = now.strftime("%Y-%m-%d %H:%M:%S")
+description = json.dumps({
+    "type": "doc",
+    "content": [
+        {
+            'type': 'paragraph',
+            "content": [
+                "text": "Imported from Coding Rooms",
+                "type": 'text'
+            ]
+        }
+    ]
+})
 
 # create assignment from data
 def create_assignment(connection, assignment_name, lab_id, data):
@@ -18,7 +30,7 @@ def create_assignment(connection, assignment_name, lab_id, data):
         query = f"""
         INSERT INTO
           `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`, `created_at`, `updated_at`)
-        VALUES ('{assignment_name}', 'Imported from Coding Rooms', {starter}, {model}, {lab_id}, 1, '{now_format}', '{now_format}');
+        VALUES ('{assignment_name}', {description}, {starter}, {model}, {lab_id}, 1, '{now_format}', '{now_format}');
         """
         execute_query(connection, query)
         problem_id = find_problem_id(connection, assignment_name, lab_id)
@@ -46,7 +58,7 @@ def create_lab(connection, course_id, lab_name):
     query = f"""
     INSERT INTO
       `labs` (`name`, `description`, `course_id`, `created_at`, `updated_at`)
-    VALUES ('{lab_name}', 'Imported from Coding Rooms', {course_id}, '{now_format}', '{now_format}');
+    VALUES ('{lab_name}', {description}, {course_id}, '{now_format}', '{now_format}');
     """
     execute_query(connection, query)
     lab_id = find_lab_id(connection, course_id, lab_name)
@@ -162,7 +174,7 @@ def main():
     course_create_query = f"""
     INSERT INTO
       `courses` (`name`, `description`, `owner_id`, `created_at`, `updated_at`)
-    VALUES ('{course_name}', 'Imported from Coding Rooms', 1237419, '{now_format}', '{now_format}');
+    VALUES ('{course_name}', {description}, 1237419, '{now_format}', '{now_format}');
     """
     print('Creating course ' + course_name + '...   ', end='')
     execute_query(connection, course_create_query)
