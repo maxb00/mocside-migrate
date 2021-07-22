@@ -11,17 +11,17 @@ FILENAME = "CSC2290_questions-truncated.json"  # TODO: Make arg.
 now = datetime.now()
 now_format = now.strftime("%Y-%m-%d %H:%M:%S")
 
-# create assingment from data
-def create_assignment(connection, assingment_name, lab_id, data):
+# create assignment from data
+def create_assignment(connection, assignment_name, lab_id, data):
     lang, starter, model = data
     if lang == 'java':
         query = f"""
         INSERT INTO
           `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`, `created_at`, `updated_at`)
-        VALUES ('{assingment_name}', 'Imported from Coding Rooms', '{starter}', '{model}', {lab_id}, 1, '{now_format}', '{now_format}');
+        VALUES ('{assignment_name}', 'Imported from Coding Rooms', '{starter}', '{model}', {lab_id}, 1, '{now_format}', '{now_format}');
         """
         execute_query(connection, query)
-        problem_id = find_problem_id(connection, assingment_name, lab_id)
+        problem_id = find_problem_id(connection, assignment_name, lab_id)
         return problem_id
 
 # from https://realpython.com/python-sql-libraries/#mysql
@@ -57,7 +57,7 @@ def create_test_case(connection, problem_id, data):
     title, points, input, out, feedback, compare = data
     query = f"""
     INSERT INTO
-      `test_cases` (`title`, `assingment_id`, `input`, `output`, `points`, `compare_method`, `feedback`, `created_at`, `updated_at`)
+      `test_cases` (`title`, `assignment_id`, `input`, `output`, `points`, `compare_method`, `feedback`, `created_at`, `updated_at`)
     VALUES ('{title}', {problem_id}, '{input}', '{out}', {points}, '{compare}', '{feedback}', '{now_format}', '{now_format}');
     """
     execute_query(connection, query)
@@ -133,7 +133,7 @@ def find_lab_id(connection, course_id, lab_name):
 def find_problem_id(connection, name, lab_id):
     query = f"""
     SELECT id
-    FROM assingments
+    FROM assignments
     WHERE
       `name` = '{name}'
       AND `lab_id` = {lab_id}
@@ -195,7 +195,7 @@ def main():
         problem_id = create_assignment(connection, problem_name, lab_id, problem_data)
         print("Complete. ID: " + str(problem_id))
 
-        # now that we've made an assingment, we must make it's test cases.
+        # now that we've made an assignment, we must make it's test cases.
         for tc in parsed_data['grading']['testCases']:
             # I am going to assume the only type supported and used is stdout
             tc_title = tc['title']
