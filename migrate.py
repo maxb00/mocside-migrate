@@ -56,7 +56,7 @@ def create_lab(connection, course_id, lab_name):
     query = f"""
     INSERT INTO
       `labs` (`name`, `description`, `course_id`, `created_at`, `updated_at`)
-    VALUES ('{lab_name}', {description}, {course_id}, '{now_format}', '{now_format}');
+    VALUES ('{lab_name}', '{description}', {course_id}, '{now_format}', '{now_format}');
     """
     execute_query(connection, query)
     lab_id = find_lab_id(connection, course_id, lab_name)
