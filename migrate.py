@@ -15,10 +15,10 @@ description = json.dumps({
     "content": [
         {
             'type': 'paragraph',
-            "content": [
+            "content": {
                 "text": "Imported from Coding Rooms",
                 "type": 'text'
-            ]
+            }
         }
     ]
 })
