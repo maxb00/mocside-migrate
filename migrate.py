@@ -6,6 +6,7 @@ import mysql.connector
 from mysql.connector import Error
 from datetime import datetime
 from functools import cache # @cache decorator will save redoing queries.
+import pdb
 
 FILENAME = "CSC2290_questions-truncated.json"  # TODO: Make arg.
 now = datetime.now()
@@ -30,6 +31,7 @@ def create_assignment(connection, assignment_name, lab_id, data):
           `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`, `created_at`, `updated_at`)
         VALUES ('{assignment_name}', '{description}', '[]', '[]', {lab_id}, 1, '{now_format}', '{now_format}');
         """
+        pdb.set_trace()
         execute_query(connection, query)
         problem_id = find_problem_id(connection, assignment_name, lab_id)
         return problem_id
