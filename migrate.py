@@ -82,7 +82,7 @@ def create_test_case(connection, problem_id, data):
     query = f"""
     INSERT INTO
       `test_cases` (`title`, `assignment_id`, `input`, `output`, `points`, `compare_method`, `feedback`, `created_at`, `updated_at`)
-    VALUES ('{title}', {problem_id}, '{input}', '{out}', {points}, '{compare}', '{feedback}', '{now_format}', '{now_format}');
+    VALUES ('{title}', {problem_id}, '{input.decode('utf-8')}', '{out.decode('utf-8')}', {points}, '{compare}', '{feedback.decode('utf-8')}', '{now_format}', '{now_format}');
     """
     execute_query(connection, query)
 
@@ -186,7 +186,7 @@ def main():
     course_create_query = f"""
     INSERT INTO
       `courses` (`name`, `description`, `owner_id`, `created_at`, `updated_at`)
-    VALUES ('{course_name}', '{description}', 1237419, '{now_format}', '{now_format}');
+    VALUES ('{course_name}', 'Imported from Coding Rooms', 1237419, '{now_format}', '{now_format}');
     """
     print('Creating course ' + course_name + '...   ', end='')
     execute_query(connection, course_create_query)
@@ -225,9 +225,9 @@ def main():
             tc_title = tc['title']
             print("Creating test case " + tc_title + '...   ', end='')
             tc_points = int(tc['points'])
-            tc_in = connection.escape_string(tc['stdin'])
-            tc_out = connection.escape_string(tc['stdout'])
-            tc_feedback = connection.escape_string(tc['feedbackOnFailure'])
+            tc_in = connection._cmysql.escape_string(tc['stdin'])
+            tc_out = connection._cmysql.escape_string(tc['stdout'])
+            tc_feedback = connection._cmysql.escape_string(tc['feedbackOnFailure'])
             tc_compare = tc['stdoutCompareMethod']
             # we have to parse stdoutCompareMethod further
             # not having python 3.10 here is a BUMMER -> TODO: implement match (3.10)
