@@ -29,12 +29,22 @@ def create_assignment(connection, assignment_name, lab_id, data):
         query = f"""
         INSERT INTO
           `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`, `created_at`, `updated_at`)
-        VALUES ('{assignment_name}', '{description}', '[]', '[]', {lab_id}, 1, '{now_format}', '{now_format}');
+        VALUES ('{assignment_name}', '{description}', '{starter}', '[]', {lab_id}, 1, '{now_format}', '{now_format}');
         """
         pdb.set_trace()
         execute_query(connection, query)
-        problem_id = find_problem_id(connection, assignment_name, lab_id)
-        return problem_id
+    else:
+        query = f"""
+        INSERT INTO
+          `assignments` (`name`, `description`, `python_starter`, `python_model`, `lab_id`, `published`, `created_at`, `updated_at`)
+        VALUES ('{assignment_name}', '{description}', '{starter}', '[]', {lab_id}, 1, '{now_format}', '{now_format}');
+        """
+        pdb.set_trace()
+        execute_query(connection, query)
+
+    problem_id = find_problem_id(connection, assignment_name, lab_id)
+    return problem_id
+
 
 # from https://realpython.com/python-sql-libraries/#mysql
 def create_connection(host_name, user_name, user_password):
