@@ -49,7 +49,7 @@ def create_lab(connection, course_id, lab_name):
     VALUES ('{lab_name}', 'Imported from Coding Rooms', {course_id}, '{now_format}', '{now_format}');
     """
     execute_query(connection, query)
-    lab_id = find_lab_id(connection, course_id, lab_id)
+    lab_id = find_lab_id(connection, course_id, lab_name)
     return lab_id
 
 # create test case from payload
