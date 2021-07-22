@@ -172,7 +172,7 @@ def main():
     course_create_query = f"""
     INSERT INTO
       `courses` (`name`, `description`, `owner_id`, `created_at`, `updated_at`)
-    VALUES ('{course_name}', {description}, 1237419, '{now_format}', '{now_format}');
+    VALUES ('{course_name}', '{description}', 1237419, '{now_format}', '{now_format}');
     """
     print('Creating course ' + course_name + '...   ', end='')
     execute_query(connection, course_create_query)
