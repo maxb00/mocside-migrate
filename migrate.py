@@ -14,6 +14,9 @@ now_format = now.strftime("%Y-%m-%d %H:%M:%S")
 # create assignment from data
 def create_assignment(connection, assignment_name, lab_id, data):
     lang, starter, model = data
+    lang = connection.escape_string(lang)
+    starter = connection.escape_string(starter)
+    model = connection.escape_string(model)
     if lang == 'java':
         query = f"""
         INSERT INTO
@@ -201,9 +204,9 @@ def main():
             tc_title = tc['title']
             print("Creating test case " + tc_title + '...   ', end='')
             tc_points = int(tc['points'])
-            tc_in = tc['stdin']
-            tc_out = tc['stdout']
-            tc_feedback = tc['feedbackOnFailure']
+            tc_in = connection.escape_string(tc['stdin'])
+            tc_out = connection.escape_string(tc['stdout'])
+            tc_feedback = connection.escape_string(tc['feedbackOnFailure'])
             tc_compare = tc['stdoutCompareMethod']
             # we have to parse stdoutCompareMethod further
             # not having python 3.10 here is a BUMMER -> TODO: implement match (3.10)
