@@ -28,7 +28,7 @@ def create_assignment(connection, assignment_name, lab_id, data):
         query = f"""
         INSERT INTO
           `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`, `created_at`, `updated_at`)
-        VALUES ('{assignment_name}', '[]', {starter}, {model}, {lab_id}, 1, '{now_format}', '{now_format}');
+        VALUES ('{assignment_name}', '{description}', '{starter}', '{model}', {lab_id}, 1, '{now_format}', '{now_format}');
         """
         execute_query(connection, query)
         problem_id = find_problem_id(connection, assignment_name, lab_id)
@@ -56,7 +56,7 @@ def create_lab(connection, course_id, lab_name):
     query = f"""
     INSERT INTO
       `labs` (`name`, `description`, `course_id`, `created_at`, `updated_at`)
-    VALUES ('{lab_name}', '[]', {course_id}, '{now_format}', '{now_format}');
+    VALUES ('{lab_name}', '{description}', {course_id}, '{now_format}', '{now_format}');
     """
     execute_query(connection, query)
     lab_id = find_lab_id(connection, course_id, lab_name)
