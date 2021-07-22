@@ -14,9 +14,6 @@ now_format = now.strftime("%Y-%m-%d %H:%M:%S")
 # create assignment from data
 def create_assignment(connection, assignment_name, lab_id, data):
     lang, starter, model = data
-    lang = connection.escape_string(lang)
-    starter = connection.escape_string(starter)
-    model = connection.escape_string(model)
     if lang == 'java':
         query = f"""
         INSERT INTO
