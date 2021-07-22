@@ -25,6 +25,7 @@ description = json.dumps({
 # create assignment from data
 def create_assignment(connection, assignment_name, lab_id, data):
     lang, starter, model = data
+    starter = connection._cmysql.escape_string(starter)
     if lang == 'java':
         query = f"""
         INSERT INTO
