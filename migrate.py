@@ -9,6 +9,19 @@ import functools # @cache decorator will save redoing queries.
 
 FILENAME = "CSC2290_questions.json"  # TODO: Make arg.
 
+# create assingment from data
+def create_assignment(connection, assingment_name, lab_id, data):
+    lang, starter, model = data
+    if lang = 'java':
+        query = f"""
+        INSERT INTO
+          `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`)
+        VALUES ('{assingment_name}', 'Imported from Coding Rooms', '{starter}', '{model}', {lab_id}, 1)
+        """
+        execute_query(connection, query)
+        problem_id = find_problem_id(connection, assingment_name, lab_id)
+        return problem_id
+
 # from https://realpython.com/python-sql-libraries/#mysql
 def create_connection(host_name, user_name, user_password):
     # creates connection with MySQL database
@@ -26,17 +39,16 @@ def create_connection(host_name, user_name, user_password):
 
     return connection
 
-# from same src as above
-@cache
-def execute_query(connection, query):
-    cursor = connection.cursor()
-
-    try:
-        cursor.execute(query)
-        connection.commit()
-        print("Query executed successfully")
-    except Error as e:
-        print(f"The error '{e}' occurred")
+# create a new lab
+def create_lab(connection, course_id, lab_name):
+    query = f"""
+    INSERT INTO
+      `labs` (`name`, `description`, `course_id`)
+    VALUES ({lab_name}, 'Imported from Coding Rooms', {course_id});
+    """
+    execute_query(connection, query)
+    lab_id = find_lab_id(connection, course_id, lab_id)
+    return lab_id
 
 # my own wrapper
 @cache
@@ -45,6 +57,18 @@ def execute_many(connection, query, values):
 
     try:
         cursor.executemany(query, values)
+        connection.commit()
+        print("Query executed successfully")
+    except Error as e:
+        print(f"The error '{e}' occurred")
+
+# from same src as above
+@cache
+def execute_query(connection, query):
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(query)
         connection.commit()
         print("Query executed successfully")
     except Error as e:
@@ -106,17 +130,6 @@ def find_problem_id(connection, name, lab_id):
     result = execute_read_query(connection, query)
     return result[0][0]
 
-# create a new lab
-def create_lab(connection, course_id, lab_name):
-    query = f"""
-    INSERT INTO
-      `labs` (`name`, `description`, `course_id`)
-    VALUES ({lab_name}, 'Imported from Coding Rooms', {course_id});
-    """
-    execute_query(connection, query)
-    lab_id = find_lab_id(connection, course_id, lab_id)
-    return lab_id
-
 def parse_problem_data(data):
     # things we need:
     # java_starter OR python_starter and model, lang
@@ -125,18 +138,6 @@ def parse_problem_data(data):
     starter = data['common']['template']['defaultFileContents']
     model = data['grading']['modelSolution']['defaultFileContents']
     return [(lang, starter, model), data]
-
-def create_assignment(connection, assingment_name, lab_id, data):
-    lang, starter, model = data
-    if lang = 'java':
-        query = f"""
-        INSERT INTO
-          `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`)
-        VALUES ('{assingment_name}', 'Imported from Coding Rooms', '{starter}', '{model}', {lab_id}, 1)
-        """
-        execute_query(connection, query)
-        problem_id = find_problem_id(connection, assingment_name, lab_id)
-        return problem_id
 
 def main():
     connection = create_connection("localhost", "root", "")
