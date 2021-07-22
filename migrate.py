@@ -169,7 +169,7 @@ def main():
 
     # after we insert, we need to find the course ID of the course we just made.
     course_id = find_course_id(connection, [(course_name, now_format)])
-    print('Complete. ID: ' + course_id)
+    print('Complete. ID: ' + str(course_id))
     # then, we need to load in all of it's problems.
     labs = []
     for problem in data:
@@ -183,7 +183,7 @@ def main():
             labs.append(lab_name)
             print("Creating Lab " + lab_name + '...   ', end='')
             lab_id = create_lab(connection, course_id, lab_name)
-            print("Complete. ID: " + lab_id)
+            print("Complete. ID: " + str(lab_id))
         else:
             # hopefully, cache will speed this up.
             lab_id = find_lab_id(connection, course_id, lab_name)
@@ -193,7 +193,7 @@ def main():
         problem_data, parsed_data = parse_problem_data(problem['single_file_code_data'])
         # now that we have our data, make assignment
         problem_id = create_assignment(connection, problem_name, lab_id, problem_data)
-        print("Complete. ID: " + problem_id)
+        print("Complete. ID: " + str(problem_id))
 
         # now that we've made an assingment, we must make it's test cases.
         for tc in parsed_data['grading']['testCases']:
