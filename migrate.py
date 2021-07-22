@@ -31,7 +31,7 @@ def create_assignment(connection, assignment_name, lab_id, data):
         query = f"""
         INSERT INTO
           `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`, `created_at`, `updated_at`)
-        VALUES ('{assignment_name}', '{description}', '''{starter}''', '''{model}''', {lab_id}, 1, '{now_format}', '{now_format}');
+        VALUES ('{assignment_name}', '{description}', {starter[1:]}, {model[1:]}, {lab_id}, 1, '{now_format}', '{now_format}');
         """
         pdb.set_trace()
         execute_query(connection, query)
