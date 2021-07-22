@@ -158,15 +158,13 @@ def main():
 
     # first, we need to create the course.
     course_name = FILENAME.split('_')[0]
-    course_create_query = """
+    course_create_query = f"""
     INSERT INTO
       `courses` (`name`, `description`, `owner_id`, `created_at`, `updated_at`)
-    VALUES ('%s', '%s', %d, '%s', '%s');
+    VALUES ('{course_name}}', 'Imported from Coding Rooms', 1237419, '{now_format}', '{now_format}');
     """
-    vals = [(course_name, "Imported from Coding Rooms",
-             1237419, now_format, now_format)]
     print('Creating course ' + course_name + '...   ', end='')
-    execute_many(connection, course_create_query, vals)
+    execute_query(connection, course_create_query)
 
     # after we insert, we need to find the course ID of the course we just made.
     course_id = find_course_id(connection, [(course_name, now_format)])
