@@ -1,8 +1,9 @@
 # migrate.py
 # Converts coding rooms json data into mocside MySQL inserts.
-# TODO: Get assignment description from data -> prompt_md
+# TODO: Get assignment description from data -> prompt_md ! Complete
 # TODO: Add course to relevant lists (Professor roster, user roster?)
 # TODO: Fix blank test cases on problem 2
+# TODO: Auth from file.
 
 import json
 import mysql.connector
@@ -24,24 +25,27 @@ description = json.dumps({
         }
     }
 })
+with open("auth.json", encoding='utf8') as f:
+    auth = json.load(f)
 
 # create assignment from data
 def create_assignment(connection, assignment_name, lab_id, data):
     lang, starter, model, desc = data
     starter = connection._cmysql.escape_string(starter)
     model = connection._cmysql.escape_string(model)
+    desc = connection._cmysql.escape_string(desc)
     if lang == 'java':
         query = f"""
         INSERT INTO
           `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`, `created_at`, `updated_at`)
-        VALUES ('{assignment_name}', '{description}', '{starter.decode('utf-8')}', '{model.decode('utf-8')}', {lab_id}, 1, '{now_format}', '{now_format}');
+        VALUES ('{assignment_name}', '{desc.decode('utf-8')}', '{starter.decode('utf-8')}', '{model.decode('utf-8')}', {lab_id}, 1, '{now_format}', '{now_format}');
         """
         execute_query(connection, query)
     else:
         query = f"""
         INSERT INTO
           `assignments` (`name`, `description`, `python_starter`, `python_model`, `lab_id`, `published`, `created_at`, `updated_at`)
-        VALUES ('{assignment_name}', '{description}', '{starter}', '[]', {lab_id}, 1, '{now_format}', '{now_format}');
+        VALUES ('{assignment_name}', '{desc.decode('utf-8')}', '{starter}', '[]', {lab_id}, 1, '{now_format}', '{now_format}');
         """
         execute_query(connection, query)
 
@@ -178,7 +182,7 @@ def parse_problem_data(problem):
     return [(lang, starter, model, desc), data]
 
 def main():
-    connection = create_connection("localhost", "admin", "Floridasouthern1!")
+    connection = create_connection(auth["host"], auth["uname"], auth["pass"])
     execute_query(connection, 'use mocside;')
     with open(FILENAME, encoding="utf8") as f:
         data = json.load(f)
