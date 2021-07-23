@@ -1,5 +1,8 @@
 # migrate.py
 # Converts coding rooms json data into mocside MySQL inserts.
+# TODO: Get assignment description from data -> prompt_md
+# TODO: Add course to relevant lists (Professor roster, user roster?)
+# TODO: Fix blank test cases on problem 2
 
 import json
 import mysql.connector
@@ -24,7 +27,7 @@ description = json.dumps({
 
 # create assignment from data
 def create_assignment(connection, assignment_name, lab_id, data):
-    lang, starter, model = data
+    lang, starter, model, desc = data
     starter = connection._cmysql.escape_string(starter)
     model = connection._cmysql.escape_string(model)
     if lang == 'java':
@@ -68,7 +71,7 @@ def create_lab(connection, course_id, lab_name):
     query = f"""
     INSERT INTO
       `labs` (`name`, `description`, `course_id`, `created_at`, `updated_at`)
-    VALUES ('{lab_name}', '{description}', {course_id}, '{now_format}', '{now_format}');
+    VALUES ('{lab_name}', 'Imported from Coding Rooms', {course_id}, '{now_format}', '{now_format}');
     """
     execute_query(connection, query)
     lab_id = find_lab_id(connection, course_id, lab_name)
@@ -164,14 +167,15 @@ def find_problem_id(connection, name, lab_id):
     result = execute_read_query(connection, query)
     return result[0][0]
 
-def parse_problem_data(data):
+def parse_problem_data(problem):
     # things we need:
     # java_starter OR python_starter and model, lang
-    data = json.loads(data)
+    data = json.loads(problem['single_file_code_data'])
+    desc = problem['prompt_md']
     lang = data['common']['template']['primaryCodeLanguage']
     starter = data['common']['template']['defaultFileContents']
     model = data['grading']['modelSolution']['defaultFileContents']
-    return [(lang, starter, model), data]
+    return [(lang, starter, model, desc), data]
 
 def main():
     connection = create_connection("localhost", "admin", "Floridasouthern1!")
@@ -212,7 +216,7 @@ def main():
 
         problem_name = split_name[1]
         print("Creating problem " + problem_name + '...   ', end='')
-        problem_data, parsed_data = parse_problem_data(problem['single_file_code_data'])
+        problem_data, parsed_data = parse_problem_data(problem)
         # now that we have our data, make assignment
         problem_id = create_assignment(connection, problem_name, lab_id, problem_data)
         print("Complete. ID: " + str(problem_id))
