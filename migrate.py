@@ -3,28 +3,29 @@
 # TODO: Get assignment description from data -> prompt_md ! Complete
 # TODO: Add course to relevant lists (Professor roster, user roster?)
 # TODO: Fix blank test cases on problem 2
-# TODO: Auth from file.
+# TODO: Auth from file. ! Complete
 
 import json
 import mysql.connector
 from mysql.connector import Error
 from datetime import datetime
-from functools import cache # @cache decorator will save redoing queries.
+from functools import cache  # @cache decorator will save redoing queries.
+import argparse
 import pdb
 
-FILENAME = "CSC2290_questions-truncated.json"  # TODO: Make arg.
+parser = argparse.ArgumentParser(
+    description='Designate file location and user ID.')
+parser.add_argument('-i', '--fscid', metavar='fscid', type=int,
+                    nargs=1, help='Set owner fsc_id', default=1237419)
+parser.add_argument('-p', '--path', metavar='path', type=str, nargs=1,
+                    help='The file path of course to be imported', required=True)
+args = parser.parse_args()
+
+USER_ID = args[0]
+# FILENAME = "CSC2290_questions-truncated.json"  # TODO: Make arg. ! Complete
+FILENAME = args[1]
 now = datetime.now()
 now_format = now.strftime("%Y-%m-%d %H:%M:%S")
-description = json.dumps({
-    "type": "doc",
-    "content": {
-        'type': 'paragraph',
-        "content": {
-            "text": "Imported from Coding Rooms",
-            "type": 'text'
-        }
-    }
-})
 with open("auth.json", encoding='utf8') as f:
     auth = json.load(f)
 
@@ -81,6 +82,7 @@ def create_lab(connection, course_id, lab_name):
     lab_id = find_lab_id(connection, course_id, lab_name)
     return lab_id
 
+
 # create test case from payload
 def create_test_case(connection, problem_id, data):
     title, points, input, out, feedback, compare = data
@@ -90,6 +92,7 @@ def create_test_case(connection, problem_id, data):
     VALUES ('{title}', {problem_id}, '{input.decode('utf-8')}', '{out.decode('utf-8')}', {points}, '{compare}', '{feedback.decode('utf-8')}', '{now_format}', '{now_format}');
     """
     execute_query(connection, query)
+
 
 # my own wrapper
 @cache
@@ -103,6 +106,7 @@ def execute_many(connection, query, values):
     except Error as e:
         print(f"The error '{e}' occurred")
 
+
 # from same src as above
 @cache
 def execute_query(connection, query):
@@ -114,6 +118,7 @@ def execute_query(connection, query):
         print("Query executed successfully")
     except Error as e:
         print(f"The error '{e}' occurred")
+
 
 # from realpython src
 @cache
@@ -127,6 +132,7 @@ def execute_read_query(connection, query):
         print(f"The error '{e}' occurred")
 
     return result
+
 
 # this function finds the new, unique course ID created by this script
 def find_course_id(connection, data):
@@ -143,6 +149,7 @@ def find_course_id(connection, data):
     # I assume this will return like [(2280)]. I just want the int.
     return result[0][0]
 
+
 # finds lab ID with given course_id and name
 @cache
 def find_lab_id(connection, course_id, lab_name):
@@ -156,6 +163,7 @@ def find_lab_id(connection, course_id, lab_name):
     """
     result = execute_read_query(connection, query)
     return result[0][0]
+
 
 # find assignment ID with given name and lab_id
 @cache
@@ -171,6 +179,7 @@ def find_problem_id(connection, name, lab_id):
     result = execute_read_query(connection, query)
     return result[0][0]
 
+
 def parse_problem_data(problem):
     # things we need:
     # java_starter OR python_starter and model, lang
@@ -180,6 +189,7 @@ def parse_problem_data(problem):
     starter = data['common']['template']['defaultFileContents']
     model = data['grading']['modelSolution']['defaultFileContents']
     return [(lang, starter, model, desc), data]
+
 
 def main():
     connection = create_connection(auth["host"], auth["uname"], auth["pass"])
@@ -222,7 +232,8 @@ def main():
         print("Creating problem " + problem_name + '...   ', end='')
         problem_data, parsed_data = parse_problem_data(problem)
         # now that we have our data, make assignment
-        problem_id = create_assignment(connection, problem_name, lab_id, problem_data)
+        problem_id = create_assignment(
+            connection, problem_name, lab_id, problem_data)
         print("Complete. ID: " + str(problem_id))
 
         # now that we've made an assignment, we must make it's test cases.
@@ -233,7 +244,8 @@ def main():
             tc_points = int(tc['points'])
             tc_in = connection._cmysql.escape_string(tc['stdin'])
             tc_out = connection._cmysql.escape_string(tc['stdout'])
-            tc_feedback = connection._cmysql.escape_string(tc['feedbackOnFailure'])
+            tc_feedback = connection._cmysql.escape_string(
+                tc['feedbackOnFailure'])
             tc_compare = tc['stdoutCompareMethod']
             # we have to parse stdoutCompareMethod further
             # not having python 3.10 here is a BUMMER -> TODO: implement match (3.10)
@@ -243,9 +255,11 @@ def main():
                 tc_compare = 'exact'
             # else, leave it and deal after, I guess. Regex is in form.
             # we are ready for an insert
-            payload = (tc_title, tc_points, tc_in, tc_out, tc_feedback, tc_compare)
+            payload = (tc_title, tc_points, tc_in,
+                       tc_out, tc_feedback, tc_compare)
             create_test_case(connection, problem_id, payload)
             print('Complete.')
+
 
 if __name__ == '__main__':
     main()
