@@ -1,8 +1,8 @@
 # migrate.py
 # Converts coding rooms json data into mocside MySQL inserts.
 # TODO: Get assignment description from data -> prompt_md ! Complete
-# TODO: Add course to relevant lists (Professor roster, user roster?)
-# TODO: Fix blank test cases on problem 2
+# TODO: Add course to relevant lists (Professor roster, user roster?) ! Complete
+# TODO: Fix blank test cases on problem 2 -> needs further attention on 7/26/21
 # TODO: Auth from file. ! Complete
 
 import json
@@ -201,10 +201,23 @@ def updateProf(connection, course_id):
     LIMIT 1;
     """
     result = execute_read_query(connection, query)
-    pdb.set_trace()
+    fetch = json.loads(result[0][0])
+
     # add course to list
+    fetch['courses'].append(course_id)
+
+    # clean object for insert
+    newList = json.dumps(fetch)
+    newList = connection._cmysql.escape_string(newList)
+
     # update prof object
-    return 0
+    query2 = f"""
+    UPDATE professors
+    SET `courses` = '{newList.decode('utf-8')}'
+    WHERE `fsc_id` = {USER_ID};
+    """
+    execute_query(connection, query2)
+    print(f"Imported course added to professor ({USER_ID}) roster")
 
 # main function
 def main():
@@ -276,8 +289,9 @@ def main():
             create_test_case(connection, problem_id, payload)
             print('Complete.')
 
+        print("Adding to professor object...   ", end='')
+        updateProf()
+
 
 if __name__ == '__main__':
-    connection = create_connection(auth["host"], auth["uname"], auth["pass"])
-    execute_query(connection, 'use mocside;')
-    updateProf(connection, 2321)
+    main()
