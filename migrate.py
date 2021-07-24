@@ -279,4 +279,5 @@ def main():
 
 if __name__ == '__main__':
     connection = create_connection(auth["host"], auth["uname"], auth["pass"])
+    execute_query(connection, 'use mocside;')
     updateProf(connection, 2321)
