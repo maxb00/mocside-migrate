@@ -52,9 +52,7 @@ def create_assignment(connection, assignment_name, lab_id, data):
             }
         ]
     })
-    pdb.set_trace()
     desc = connection._cmysql.escape_string(desc)
-    pdb.set_trace()
     if lang == 'java':
         query = f"""
         INSERT INTO
@@ -309,8 +307,8 @@ def main():
             create_test_case(connection, problem_id, payload)
             print('Complete.')
 
-        print("Adding to professor object...   ", end='')
-        updateProf()
+    print("Adding to professor object...   ", end='')
+    updateProf(connection, course_id)
 
 
 if __name__ == '__main__':
