@@ -191,6 +191,22 @@ def parse_problem_data(problem):
     return [(lang, starter, model, desc), data]
 
 
+# function to update prof course list so they see the imported course
+def updateProf(connection, course_id):
+    # get prof object from USER_ID
+    query = f"""
+    SELECT courses
+    FROM professors
+    WHERE `fsc_id` = {USER_ID}
+    LIMIT 1;
+    """
+    execute_read_query(connection, query)
+    pdb.set_trace()
+    # add course to list
+    # update prof object
+    return 0
+
+# main function
 def main():
     connection = create_connection(auth["host"], auth["uname"], auth["pass"])
     execute_query(connection, 'use mocside;')
@@ -202,7 +218,7 @@ def main():
     course_create_query = f"""
     INSERT INTO
       `courses` (`name`, `description`, `owner_id`, `created_at`, `updated_at`)
-    VALUES ('{course_name}', 'Imported from Coding Rooms', 1237419, '{now_format}', '{now_format}');
+    VALUES ('{course_name}', 'Imported from Coding Rooms', {USER_ID}, '{now_format}', '{now_format}');
     """
     print('Creating course ' + course_name + '...   ', end='')
     execute_query(connection, course_create_query)
@@ -262,4 +278,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    connection = create_connection(auth["host"], auth["uname"], auth["pass"])
+    updateProf(connection, 2321)
