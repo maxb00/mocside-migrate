@@ -34,7 +34,27 @@ def create_assignment(connection, assignment_name, lab_id, data):
     lang, starter, model, desc = data
     starter = connection._cmysql.escape_string(starter)
     model = connection._cmysql.escape_string(model)
+    desc = json.dumps({
+        'type': 'doc',
+        'content': [
+            {
+                'type': 'heading',
+                'attrs': {'level': 3},
+                'content': [
+                    {'text': 'Problem Statement', 'type': 'text'}
+                ]
+            },
+            {
+                'type': 'paragraph',
+                'content': [
+                    {'text': desc, 'type': 'text'}
+                ]
+            }
+        ]
+    })
+    pdb.set_trace()
     desc = connection._cmysql.escape_string(desc)
+    pdb.set_trace()
     if lang == 'java':
         query = f"""
         INSERT INTO
