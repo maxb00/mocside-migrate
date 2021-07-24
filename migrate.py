@@ -21,9 +21,9 @@ parser.add_argument('-p', '--path', metavar='path', type=str, nargs=1,
                     help='The file path of course to be imported', required=True)
 args = parser.parse_args()
 
-USER_ID = args.fscid
+USER_ID = args.fscid[0]
 # FILENAME = "CSC2290_questions-truncated.json"  # TODO: Make arg. ! Complete
-FILENAME = args.path
+FILENAME = args.path[0]
 now = datetime.now()
 now_format = now.strftime("%Y-%m-%d %H:%M:%S")
 with open("auth.json", encoding='utf8') as f:
