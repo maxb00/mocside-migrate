@@ -200,7 +200,7 @@ def updateProf(connection, course_id):
     WHERE `fsc_id` = {USER_ID}
     LIMIT 1;
     """
-    execute_read_query(connection, query)
+    result = execute_read_query(connection, query)
     pdb.set_trace()
     # add course to list
     # update prof object
