@@ -16,10 +16,15 @@ and then run the above python command in the home directory of the project.
 ARGUMENT EXPLANATION
 
 
-  -i, --fscid -> The fsc_id of the desired owner of the imported course.
+  -i, --fscid  -> The fsc_id of the desired owner of the imported course.
 
 
-  -p, --path  -> The filepath of the conversion source. Ex: CSC2290_questions.json
+  -p, --path   -> The filepath of the conversion source. Ex: CSC2290_questions.json
+
+
+  -t, --length -> Length, in days, to run the imported course for by default.
+  
+                  Used for calculating due dates.
 
 FUTURE USE
   * Create MocsIDE API hook
