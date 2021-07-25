@@ -23,7 +23,6 @@ ARGUMENT EXPLANATION
 
 
   -t, --length -> Length, in days, to run the imported course for by default.
-  
                   Used for calculating due dates.
 
 FUTURE USE
