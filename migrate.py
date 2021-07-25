@@ -4,13 +4,16 @@
 # TODO: Add course to relevant lists (Professor roster, user roster?) ! Complete
 # TODO: Fix blank test cases on problem 2 -> needs further attention on 7/26/21
 # TODO: Auth from file. ! Complete
+# TODO: Add Due Dates to problems and labs ! Complete
+# TODO: Add course start date ! Complete
 
 import json
 import mysql.connector
 from mysql.connector import Error
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import cache  # @cache decorator will save redoing queries.
 import argparse
+import calendar
 import pdb
 
 parser = argparse.ArgumentParser(
@@ -19,18 +22,35 @@ parser.add_argument('-i', '--fscid', metavar='fscid', type=int,
                     nargs=1, help='Set owner fsc_id', default=1237419)
 parser.add_argument('-p', '--path', metavar='path', type=str, nargs=1,
                     help='The file path of course to be imported', required=True)
+parser.add_argument('-t', '--length', metavar='length', type=int, nargs=1,
+                    help='The number of days to run the course for. To be used in default due dates.', default=31)
 args = parser.parse_args()
 
 USER_ID = args.fscid[0]
 # FILENAME = "CSC2290_questions-truncated.json"  # TODO: Make arg. ! Complete
 FILENAME = args.path[0]
+CUST_LENGTH = args.length[0]
 now = datetime.now()
 now_format = now.strftime("%Y-%m-%d %H:%M:%S")
 with open("auth.json", encoding='utf8') as f:
     auth = json.load(f)
 
+
+# function to find starter due date.
+# From https://stackoverflow.com/questions/4130922/how-to-increment-datetime-by-custom-months-in-python-without-using-library
+def add_days(sourcedate, days):
+    # month = sourcedate.month - 1 + months
+    # year = sourcedate.year + month // 12
+    # month = month % 12 + 1
+    # day = min(sourcedate.day, calendar.monthrange(year,month)[1])
+    # return datetime(year, month, day, sourcedate.hour, sourcedate.minute, sourcedate.second)
+    change = timedelta(days=days)
+    new_date = sourcedate + change
+    return new_date
+
+
 # create assignment from data
-def create_assignment(connection, assignment_name, lab_id, data):
+def create_assignment(connection, assignment_name, lab_id, data, due_date):
     lang, starter, model, desc = data
     starter = connection._cmysql.escape_string(starter)
     model = connection._cmysql.escape_string(model)
@@ -56,8 +76,8 @@ def create_assignment(connection, assignment_name, lab_id, data):
     if lang == 'java':
         query = f"""
         INSERT INTO
-          `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`, `created_at`, `updated_at`)
-        VALUES ('{assignment_name}', '{desc.decode('utf-8')}', '{starter.decode('utf-8')}', '{model.decode('utf-8')}', {lab_id}, 1, '{now_format}', '{now_format}');
+          `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`, `created_at`, `updated_at`, `due_date`)
+        VALUES ('{assignment_name}', '{desc.decode('utf-8')}', '{starter.decode('utf-8')}', '{model.decode('utf-8')}', {lab_id}, 1, '{now_format}', '{now_format}', '{due_date.strftime("%Y-%m-%d %H:%M:%S")}');
         """
         execute_query(connection, query)
     else:
@@ -89,12 +109,13 @@ def create_connection(host_name, user_name, user_password):
 
     return connection
 
+
 # create a new lab
-def create_lab(connection, course_id, lab_name):
+def create_lab(connection, course_id, lab_name, due_date):
     query = f"""
     INSERT INTO
-      `labs` (`name`, `description`, `course_id`, `created_at`, `updated_at`)
-    VALUES ('{lab_name}', 'Imported from Coding Rooms', {course_id}, '{now_format}', '{now_format}');
+      `labs` (`name`, `description`, `course_id`, `created_at`, `updated_at`, `due_date`)
+    VALUES ('{lab_name}', 'Imported from Coding Rooms', {course_id}, '{now_format}', '{now_format}', '{due_date.strftime("%Y-%m-%d %H:%M:%S")}');
     """
     execute_query(connection, query)
     lab_id = find_lab_id(connection, course_id, lab_name)
@@ -110,19 +131,6 @@ def create_test_case(connection, problem_id, data):
     VALUES ('{title}', {problem_id}, '{input.decode('utf-8')}', '{out.decode('utf-8')}', {points}, '{compare}', '{feedback.decode('utf-8')}', '{now_format}', '{now_format}');
     """
     execute_query(connection, query)
-
-
-# my own wrapper
-@cache
-def execute_many(connection, query, values):
-    cursor = connection.cursor()
-
-    try:
-        cursor.executemany(query, values)
-        connection.commit()
-        print("Query executed successfully")
-    except Error as e:
-        print(f"The error '{e}' occurred")
 
 
 # from same src as above
@@ -237,8 +245,9 @@ def updateProf(connection, course_id):
     execute_query(connection, query2)
     print(f"Imported course added to professor ({USER_ID}) roster")
 
+
 # main function
-def main():
+def main(due_date):
     connection = create_connection(auth["host"], auth["uname"], auth["pass"])
     execute_query(connection, 'use mocside;')
     with open(FILENAME, encoding="utf8") as f:
@@ -248,8 +257,8 @@ def main():
     course_name = FILENAME.split('_')[0]
     course_create_query = f"""
     INSERT INTO
-      `courses` (`name`, `description`, `owner_id`, `created_at`, `updated_at`)
-    VALUES ('{course_name}', 'Imported from Coding Rooms', {USER_ID}, '{now_format}', '{now_format}');
+      `courses` (`name`, `description`, `owner_id`, `created_at`, `updated_at`, `start_date`, `end_date`)
+    VALUES ('{course_name}', 'Imported from Coding Rooms', {USER_ID}, '{now_format}', '{now_format}', '{str(now.date())}', '{str(due_date.date())}');
     """
     print('Creating course ' + course_name + '...   ', end='')
     execute_query(connection, course_create_query)
@@ -269,7 +278,7 @@ def main():
             # first time seeing this lab! let's create.
             labs.append(lab_name)
             print("Creating Lab " + lab_name + '...   ', end='')
-            lab_id = create_lab(connection, course_id, lab_name)
+            lab_id = create_lab(connection, course_id, lab_name, due_date)
             print("Complete. ID: " + str(lab_id))
         else:
             # hopefully, cache will speed this up.
@@ -280,7 +289,7 @@ def main():
         problem_data, parsed_data = parse_problem_data(problem)
         # now that we have our data, make assignment
         problem_id = create_assignment(
-            connection, problem_name, lab_id, problem_data)
+            connection, problem_name, lab_id, problem_data, due_date)
         print("Complete. ID: " + str(problem_id))
 
         # now that we've made an assignment, we must make it's test cases.
@@ -312,4 +321,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    due_date = add_months(now, CUST_LENGTH)
+    main(due_date)
