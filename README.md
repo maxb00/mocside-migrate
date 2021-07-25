@@ -14,7 +14,11 @@ Activate it (on Linux) with "source /home/max/mocside-migrate/bin/activate",
 and then run the above python command in the home directory of the project.
 
 ARGUMENT EXPLANATION
+
+
   -i, --fscid -> The fsc_id of the desired owner of the imported course.
+
+
   -p, --path  -> The filepath of the conversion source. Ex: CSC2290_questions.json
 
 FUTURE USE
