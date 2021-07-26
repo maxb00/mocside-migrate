@@ -1,7 +1,8 @@
 # migrate.py
 # Converts coding rooms json data into mocside MySQL inserts.
 # TODO: Fix blank test cases on problem 2 -> needs further attention on 7/26/21
-# BREAKDOWN: We need a place to stash unit test data until we can use it.
+# BREAKDOWN: We need a place to stash unit test data until we can use it. ! complete
+# TODO: gradebook initializations ! complete
 
 import json
 import mysql.connector
@@ -10,7 +11,6 @@ from datetime import datetime, timedelta
 from functools import cache  # @cache decorator will save redoing queries.
 import argparse
 import calendar
-import pdb
 
 parser = argparse.ArgumentParser(
     description='Designate file location and user ID.')
@@ -69,18 +69,22 @@ def create_assignment(connection, assignment_name, lab_id, data, due_date):
         ]
     })
     desc = connection._cmysql.escape_string(desc)
+    gradebook = connection._cmysql.escape_string(json.dumps({
+        'students': [],
+        'grades': {}
+    }))
     if lang == 'java':
         query = f"""
         INSERT INTO
-          `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`, `created_at`, `updated_at`, `due_date`)
-        VALUES ('{assignment_name}', '{desc.decode('utf-8')}', '{starter.decode('utf-8')}', '{model.decode('utf-8')}', {lab_id}, 1, '{now_format}', '{now_format}', '{due_date.strftime("%Y-%m-%d %H:%M:%S")}');
+          `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`, `created_at`, `updated_at`, `due_date`, `gradebook`)
+        VALUES ('{assignment_name}', '{desc.decode('utf-8')}', '{starter.decode('utf-8')}', '{model.decode('utf-8')}', {lab_id}, 1, '{now_format}', '{now_format}', '{due_date.strftime("%Y-%m-%d %H:%M:%S")}', '{gradebook.decode('utf-8')}');
         """
         execute_query(connection, query)
     else:
         query = f"""
         INSERT INTO
-          `assignments` (`name`, `description`, `python_starter`, `python_model`, `lab_id`, `published`, `created_at`, `updated_at`)
-        VALUES ('{assignment_name}', '{desc.decode('utf-8')}', '{starter}', '[]', {lab_id}, 1, '{now_format}', '{now_format}');
+          `assignments` (`name`, `description`, `python_starter`, `python_model`, `lab_id`, `published`, `created_at`, `updated_at`, `gradebook`)
+        VALUES ('{assignment_name}', '{desc.decode('utf-8')}', '{starter}', '[]', {lab_id}, 1, '{now_format}', '{now_format}', '{gradebook.decode('utf-8')}');
         """
         execute_query(connection, query)
 
@@ -108,10 +112,14 @@ def create_connection(host_name, user_name, user_password):
 
 # create a new lab
 def create_lab(connection, course_id, lab_name, due_date):
+    gradebook = connection._cmysql.escape_string(json.dumps({
+        'students': [],
+        'grades': {}
+    }))
     query = f"""
     INSERT INTO
-      `labs` (`name`, `description`, `course_id`, `created_at`, `updated_at`, `due_date`)
-    VALUES ('{lab_name}', 'Imported from Coding Rooms', {course_id}, '{now_format}', '{now_format}', '{due_date.strftime("%Y-%m-%d %H:%M:%S")}');
+      `labs` (`name`, `description`, `course_id`, `created_at`, `updated_at`, `due_date`, `gradebook`)
+    VALUES ('{lab_name}', 'Imported from Coding Rooms', {course_id}, '{now_format}', '{now_format}', '{due_date.strftime("%Y-%m-%d %H:%M:%S")}', '{gradebook.decode('utf-8')}');
     """
     execute_query(connection, query)
     lab_id = find_lab_id(connection, course_id, lab_name)
@@ -261,10 +269,14 @@ def main(due_date):
 
     # first, we need to create the course.
     course_name = FILENAME.split('_')[0]
+    gradebook = connection._cmysql.escape_string(json.dumps({
+        'students': [],
+        'grades': {}
+    }))
     course_create_query = f"""
     INSERT INTO
-      `courses` (`name`, `description`, `owner_id`, `created_at`, `updated_at`, `start_date`, `end_date`)
-    VALUES ('{course_name}', 'Imported from Coding Rooms', {USER_ID}, '{now_format}', '{now_format}', '{str(now.date())}', '{str(due_date.date())}');
+      `courses` (`name`, `description`, `owner_id`, `created_at`, `updated_at`, `start_date`, `end_date`, `gradebook`)
+    VALUES ('{course_name}', 'Imported from Coding Rooms', {USER_ID}, '{now_format}', '{now_format}', '{str(now.date())}', '{str(due_date.date())}', '{gradebook.decode('utf-8')}');
     """
     print('Creating course ' + course_name + '...   ', end='')
     execute_query(connection, course_create_query)
