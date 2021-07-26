@@ -22,14 +22,14 @@ parser.add_argument('-i', '--fscid', metavar='fscid', type=int,
                     nargs=1, help='Set owner fsc_id', default=1237419)
 parser.add_argument('-p', '--path', metavar='path', type=str, nargs=1,
                     help='The file path of course to be imported', required=True)
-parser.add_argument('-t', '--length', metavar='length', type=int, nargs=1,
+parser.add_argument('-t', '--runtime', metavar='runtime', type=int, nargs=1,
                     help='The number of days to run the course for. To be used in default due dates.', default=31)
 args = parser.parse_args()
 
 USER_ID = args.fscid[0]
 # FILENAME = "CSC2290_questions-truncated.json"  # TODO: Make arg. ! Complete
 FILENAME = args.path[0]
-CUST_LENGTH = args.length[0]
+CUST_LENGTH = args.runtime[0]
 now = datetime.now()
 now_format = now.strftime("%Y-%m-%d %H:%M:%S")
 with open("auth.json", encoding='utf8') as f:
