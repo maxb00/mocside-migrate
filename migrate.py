@@ -321,5 +321,5 @@ def main(due_date):
 
 
 if __name__ == '__main__':
-    due_date = add_months(now, CUST_LENGTH)
+    due_date = add_days(now, CUST_LENGTH)
     main(due_date)
