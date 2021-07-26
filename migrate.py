@@ -3,6 +3,7 @@
 # TODO: Fix blank test cases on problem 2 -> needs further attention on 7/26/21
 # BREAKDOWN: We need a place to stash unit test data until we can use it. ! complete
 # TODO: gradebook initializations ! complete
+# TODO: roster initializations.
 
 import json
 import mysql.connector
@@ -273,10 +274,13 @@ def main(due_date):
         'students': [],
         'grades': {}
     }))
+    roster = connection._cmysql.escape_string(json.dumps({
+        'roster': []
+    }))
     course_create_query = f"""
     INSERT INTO
-      `courses` (`name`, `description`, `owner_id`, `created_at`, `updated_at`, `start_date`, `end_date`, `gradebook`)
-    VALUES ('{course_name}', 'Imported from Coding Rooms', {USER_ID}, '{now_format}', '{now_format}', '{str(now.date())}', '{str(due_date.date())}', '{gradebook.decode('utf-8')}');
+      `courses` (`name`, `description`, `owner_id`, `created_at`, `updated_at`, `start_date`, `end_date`, `gradebook`, `roster`)
+    VALUES ('{course_name}', 'Imported from Coding Rooms', {USER_ID}, '{now_format}', '{now_format}', '{str(now.date())}', '{str(due_date.date())}', '{gradebook.decode('utf-8')}', '{roster.decode('utf-8')}');
     """
     print('Creating course ' + course_name + '...   ', end='')
     execute_query(connection, course_create_query)
