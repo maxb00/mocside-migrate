@@ -119,8 +119,8 @@ def create_lab(connection, course_id, lab_name, due_date):
     }))
     query = f"""
     INSERT INTO
-      `labs` (`name`, `description`, `course_id`, `created_at`, `updated_at`, `due_date`, `gradebook`)
-    VALUES ('{lab_name}', 'Imported from Coding Rooms', {course_id}, '{now_format}', '{now_format}', '{due_date.strftime("%Y-%m-%d %H:%M:%S")}', '{gradebook.decode('utf-8')}');
+      `labs` (`name`, `description`, `course_id`, `created_at`, `updated_at`, `due_date`, `gradebook`, `publish_date`)
+    VALUES ('{lab_name}', 'Imported from Coding Rooms', {course_id}, '{now_format}', '{now_format}', '{due_date.strftime("%Y-%m-%d %H:%M:%S")}', '{gradebook.decode('utf-8')}', '{now_format}');
     """
     execute_query(connection, query)
     lab_id = find_lab_id(connection, course_id, lab_name)
