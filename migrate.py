@@ -1,11 +1,7 @@
 # migrate.py
 # Converts coding rooms json data into mocside MySQL inserts.
-# TODO: Get assignment description from data -> prompt_md ! Complete
-# TODO: Add course to relevant lists (Professor roster, user roster?) ! Complete
 # TODO: Fix blank test cases on problem 2 -> needs further attention on 7/26/21
-# TODO: Auth from file. ! Complete
-# TODO: Add Due Dates to problems and labs ! Complete
-# TODO: Add course start date ! Complete
+# BREAKDOWN: We need a place to stash unit test data until we can use it.
 
 import json
 import mysql.connector
@@ -124,13 +120,23 @@ def create_lab(connection, course_id, lab_name, due_date):
 
 # create test case from payload
 def create_test_case(connection, problem_id, data):
-    title, points, input, out, feedback, compare = data
-    query = f"""
-    INSERT INTO
-      `test_cases` (`title`, `assignment_id`, `input`, `output`, `points`, `compare_method`, `feedback`, `created_at`, `updated_at`)
-    VALUES ('{title}', {problem_id}, '{input.decode('utf-8')}', '{out.decode('utf-8')}', {points}, '{compare}', '{feedback.decode('utf-8')}', '{now_format}', '{now_format}');
-    """
-    execute_query(connection, query)
+    # data[5] is compare method, look for unit test
+    if data[5] == 'unit':
+        title, points, code, flavor, feedback, compare = data
+        query = f"""
+        INSERT INTO
+          `test_cases` (`title`, `assignment_id`, `unit_code`, `unit_flavor`, `points`, `compare_method`, `feedback`, `created_at`, `updated_at`)
+        VALUES ('{title}', {problem_id}, '{code.decode('utf-8')}', '{flavor}', {points}, '{compare}', '{feedback.decode('utf-8')}', '{now_format}', '{now_format}');
+        """
+        execute_query(connection, query)
+    else:
+        title, points, input, out, feedback, compare = data
+        query = f"""
+        INSERT INTO
+          `test_cases` (`title`, `assignment_id`, `input`, `output`, `points`, `compare_method`, `feedback`, `created_at`, `updated_at`)
+        VALUES ('{title}', {problem_id}, '{input.decode('utf-8')}', '{out.decode('utf-8')}', {points}, '{compare}', '{feedback.decode('utf-8')}', '{now_format}', '{now_format}');
+        """
+        execute_query(connection, query)
 
 
 # from same src as above
@@ -295,25 +301,34 @@ def main(due_date):
         # now that we've made an assignment, we must make it's test cases.
         for tc in parsed_data['grading']['testCases']:
             # I am going to assume the only type supported and used is stdout
+            # REVISION: This is not true.
             tc_title = tc['title']
-            print("Creating test case " + tc_title + '...   ', end='')
             tc_points = int(tc['points'])
-            tc_in = connection._cmysql.escape_string(tc['stdin'])
-            tc_out = connection._cmysql.escape_string(tc['stdout'])
+            print("Creating test case " + tc_title + '...   ', end='')
             tc_feedback = connection._cmysql.escape_string(
                 tc['feedbackOnFailure'])
-            tc_compare = tc['stdoutCompareMethod']
-            # we have to parse stdoutCompareMethod further
-            # not having python 3.10 here is a BUMMER -> TODO: implement match (3.10)
-            if tc_compare == 'equals_flexible':
-                tc_compare = 'flexible'
-            elif tc_compare == 'equals':
-                tc_compare = 'exact'
-            # else, leave it and deal after, I guess. Regex is in form.
-            # we are ready for an insert
-            payload = (tc_title, tc_points, tc_in,
-                       tc_out, tc_feedback, tc_compare)
-            create_test_case(connection, problem_id, payload)
+            tc_type = tc['type']
+            if tc_type == 'unit_test':
+                tc_flavor = tc['unitTestFlavor']
+                tc_code = connection._cmysql.escape_string(tc['unitTestCode'])
+                tc_compare = 'unit'
+                payload = (tc_title, tc_points, tc_code, tc_flavor, tc_feedback, tc_compare)
+                create_test_case(connection, problem_id, payload)
+            else:
+                tc_in = connection._cmysql.escape_string(tc['stdin'])
+                tc_out = connection._cmysql.escape_string(tc['stdout'])
+                tc_compare = tc['stdoutCompareMethod']
+                # we have to parse stdoutCompareMethod further
+                # not having python 3.10 here is a BUMMER -> TODO: implement match (3.10)
+                if tc_compare == 'equals_flexible':
+                    tc_compare = 'flexible'
+                elif tc_compare == 'equals':
+                    tc_compare = 'exact'
+                # else, leave it and deal after, I guess. Regex is in form.
+                # we are ready for an insert
+                payload = (tc_title, tc_points, tc_in,
+                           tc_out, tc_feedback, tc_compare)
+                create_test_case(connection, problem_id, payload)
             print('Complete.')
 
     print("Adding to professor object...   ", end='')
