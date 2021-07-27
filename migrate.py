@@ -128,16 +128,29 @@ def create_lab(connection, course_id, lab_name, due_date):
 
 
 # create test case from payload
+# TODO: Assess usefulness of unit_flavor
 def create_test_case(connection, problem_id, data):
     # data[5] is compare method, look for unit test
     if data[5] == 'unit':
         title, points, code, flavor, feedback, compare = data
-        query = f"""
-        INSERT INTO
-          `test_cases` (`title`, `assignment_id`, `unit_code`, `unit_flavor`, `points`, `compare_method`, `feedback`, `created_at`, `updated_at`)
-        VALUES ('{title}', {problem_id}, '{code.decode('utf-8')}', '{flavor}', {points}, '{compare}', '{feedback.decode('utf-8')}', '{now_format}', '{now_format}');
-        """
-        execute_query(connection, query)
+        if flavor == 'junit4':
+            query = f"""
+            INSERT INTO
+              `test_cases` (`title`, `assignment_id`, `java_unit_code`, `unit_flavor`, `points`, `compare_method`, `feedback`, `created_at`, `updated_at`)
+            VALUES ('{title}', {problem_id}, '{code.decode('utf-8')}', '{flavor}', {points}, '{compare}', '{feedback.decode('utf-8')}', '{now_format}', '{now_format}');
+            """
+            execute_query(connection, query)
+        else if flavor == 'py3_unittest':
+            # py unit test
+            query = f"""
+            INSERT INTO
+              `test_cases` (`title`, `assignment_id`, `py_unit_code`, `unit_flavor`, `points`, `compare_method`, `feedback`, `created_at`, `updated_at`)
+            VALUES ('{title}', {problem_id}, '{code.decode('utf-8')}', '{flavor}', {points}, '{compare}', '{feedback.decode('utf-8')}', '{now_format}', '{now_format}');
+            """
+            execute_query(connection, query)
+            pass
+        else:
+            print("Unknown unit test type. Skipped.")
     else:
         title, points, input, out, feedback, compare = data
         query = f"""
