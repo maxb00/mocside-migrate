@@ -287,8 +287,12 @@ def main(due_date):
         split_name = problem['title'].split('_')
         lab_name = split_name[0]
         if lab_name[:3] != 'Lab':
-            # we have expeted format
+            # we have unexpeted format -> send to unsorted
             lab_name = 'unsorted'
+            problem_name = problem['title']
+        else:
+            problem_name = split_name[1]
+
         if lab_name not in labs:
             # first time seeing this lab! let's create.
             labs.append(lab_name)
@@ -299,7 +303,6 @@ def main(due_date):
             # hopefully, cache will speed this up.
             lab_id = find_lab_id(connection, course_id, lab_name)
 
-        problem_name = split_name[1]
         print("Creating problem " + problem_name + '...   ', end='')
         problem_data, parsed_data = parse_problem_data(problem)
         # now that we have our data, make assignment
