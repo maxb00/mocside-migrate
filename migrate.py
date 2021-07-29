@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from functools import cache  # @cache decorator will save redoing queries.
 import argparse
 import requests
+from time import sleep
 
 parser = argparse.ArgumentParser(
     description='Designate file location and user ID.')
@@ -43,6 +44,15 @@ def create_assignment(connection, assignment_name, lab_id, data, due_date):
     model = connection._cmysql.escape_string(model)
     res = requests.post(
         'http://mocside.com:8000/api/convert-markdown', data={'markdown': desc})
+
+    # why? don't ask.
+    while res.status_code == 429:
+        # we got rate limited. slow down.
+        print("Rate limited. Sleeping for 2 seconds(?).")
+        sleep(2) # sleep for a second to give the API time to recover
+        res = requests.post(
+            'http://mocside.com:8000/api/convert-markdown', data={'markdown': desc})
+
     prose = json.loads(res.text)
     desc = connection._cmysql.escape_string(json.dumps(
         prose['data']).replace('code_block', 'codeBlock'))
