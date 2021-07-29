@@ -1,6 +1,6 @@
 # migrate.py
 # Converts coding rooms json data into mocside MySQL inserts.
-
+# TODO: implement unsorted labs
 
 import json
 import mysql.connector
@@ -286,6 +286,9 @@ def main(due_date):
         # first, lets determine the lab and problem name.
         split_name = problem['title'].split('_')
         lab_name = split_name[0]
+        if lab_name[:3] != 'Lab':
+            # we have expeted format
+            lab_name = 'unsorted'
         if lab_name not in labs:
             # first time seeing this lab! let's create.
             labs.append(lab_name)
