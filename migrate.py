@@ -216,7 +216,7 @@ def parse_problem_data(problem):
     desc = problem['prompt_md']
     lang = data['common']['template']['primaryCodeLanguage']
     starter = data['common']['template']['defaultFileContents']
-    if data['grading']['modelSolution'] not null:
+    if data['grading']['modelSolution']:
         model = data['grading']['modelSolution']['defaultFileContents']
     else:
         model = ""
