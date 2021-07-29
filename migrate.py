@@ -300,6 +300,9 @@ def main(due_date):
             # we have unexpeted format -> send to unsorted
             lab_name = 'unsorted'
             problem_name = problem['title']
+            if problem_name in ['test2', 'test4']:
+                # these are shell problems. going to avoid.
+                continue
         else:
             problem_name = split_name[1]
 
