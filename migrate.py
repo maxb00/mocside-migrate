@@ -1,9 +1,6 @@
 # migrate.py
 # Converts coding rooms json data into mocside MySQL inserts.
-# TODO: Fix blank test cases on problem 2 -> needs further attention on 7/26/21
-# BREAKDOWN: We need a place to stash unit test data until we can use it. ! complete
-# TODO: gradebook initializations ! complete
-# TODO: roster initializations. ! complete
+
 
 import json
 import mysql.connector
@@ -25,7 +22,6 @@ parser.add_argument('-t', '--runtime', metavar='runtime', type=int, nargs=1,
 args = parser.parse_args()
 
 USER_ID = args.fscid[0]
-# FILENAME = "CSC2290_questions-truncated.json"  # TODO: Make arg. ! Complete
 FILENAME = args.path[0]
 CUST_LENGTH = args.runtime[0]
 now = datetime.now()
@@ -35,13 +31,7 @@ with open("auth.json", encoding='utf8') as f:
 
 
 # function to find starter due date.
-# From https://stackoverflow.com/questions/4130922/how-to-increment-datetime-by-custom-months-in-python-without-using-library
 def add_days(sourcedate, days):
-    # month = sourcedate.month - 1 + months
-    # year = sourcedate.year + month // 12
-    # month = month % 12 + 1
-    # day = min(sourcedate.day, calendar.monthrange(year,month)[1])
-    # return datetime(year, month, day, sourcedate.hour, sourcedate.minute, sourcedate.second)
     change = timedelta(days=days)
     new_date = sourcedate + change
     return new_date
@@ -113,7 +103,6 @@ def create_lab(connection, course_id, lab_name, due_date):
 
 
 # create test case from payload
-# TODO: Assess usefulness of unit_flavor
 def create_test_case(connection, problem_id, data):
     # data[5] is compare method, look for unit test
     if data[5] == 'unit':
@@ -121,16 +110,16 @@ def create_test_case(connection, problem_id, data):
         if flavor == 'junit4':
             query = f"""
             INSERT INTO
-              `test_cases` (`title`, `assignment_id`, `java_unit_code`, `unit_flavor`, `points`, `compare_method`, `feedback`, `created_at`, `updated_at`)
-            VALUES ('{title}', {problem_id}, '{code.decode('utf-8')}', '{flavor}', {points}, '{compare}', '{feedback.decode('utf-8')}', '{now_format}', '{now_format}');
+              `test_cases` (`title`, `assignment_id`, `java_unit_code`, `points`, `compare_method`, `feedback`, `created_at`, `updated_at`)
+            VALUES ('{title}', {problem_id}, '{code.decode('utf-8')}', {points}, '{compare}', '{feedback.decode('utf-8')}', '{now_format}', '{now_format}');
             """
             execute_query(connection, query)
         elif flavor == 'py3_unittest':
             # py unit test
             query = f"""
             INSERT INTO
-              `test_cases` (`title`, `assignment_id`, `py_unit_code`, `unit_flavor`, `points`, `compare_method`, `feedback`, `created_at`, `updated_at`)
-            VALUES ('{title}', {problem_id}, '{code.decode('utf-8')}', '{flavor}', {points}, '{compare}', '{feedback.decode('utf-8')}', '{now_format}', '{now_format}');
+              `test_cases` (`title`, `assignment_id`, `py_unit_code`, `points`, `compare_method`, `feedback`, `created_at`, `updated_at`)
+            VALUES ('{title}', {problem_id}, '{code.decode('utf-8')}', {points}, '{compare}', '{feedback.decode('utf-8')}', '{now_format}', '{now_format}');
             """
             execute_query(connection, query)
             pass
@@ -291,7 +280,6 @@ def main(due_date):
     for problem in data:
         # it looks like every problem in the import file is single file code.
         # first, lets determine the lab and problem name.
-        # "title": "Lab04_Problem18: Number Counts"
         split_name = problem['title'].split('_')
         lab_name = split_name[0]
         if lab_name not in labs:
@@ -323,6 +311,7 @@ def main(due_date):
                 tc['feedbackOnFailure'])
             tc_type = tc['type']
             if tc_type == 'unit_test':
+                # IM LEAVING FLAVOR although not in the db to balance payloads
                 tc_flavor = tc['unitTestFlavor']
                 tc_code = connection._cmysql.escape_string(tc['unitTestCode'])
                 tc_compare = 'unit'
