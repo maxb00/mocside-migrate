@@ -3,7 +3,7 @@
 # TODO: Fix blank test cases on problem 2 -> needs further attention on 7/26/21
 # BREAKDOWN: We need a place to stash unit test data until we can use it. ! complete
 # TODO: gradebook initializations ! complete
-# TODO: roster initializations.
+# TODO: roster initializations. ! complete
 
 import json
 import mysql.connector
@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from functools import cache  # @cache decorator will save redoing queries.
 import argparse
 import calendar
+import requests
 
 parser = argparse.ArgumentParser(
     description='Designate file location and user ID.')
@@ -51,25 +52,9 @@ def create_assignment(connection, assignment_name, lab_id, data, due_date):
     lang, starter, model, desc = data
     starter = connection._cmysql.escape_string(starter)
     model = connection._cmysql.escape_string(model)
-    desc = json.dumps({
-        'type': 'doc',
-        'content': [
-            {
-                'type': 'heading',
-                'attrs': {'level': 3},
-                'content': [
-                    {'text': 'Problem Statement', 'type': 'text'}
-                ]
-            },
-            {
-                'type': 'paragraph',
-                'content': [
-                    {'text': desc, 'type': 'text'}
-                ]
-            }
-        ]
-    })
-    desc = connection._cmysql.escape_string(desc)
+    res = requests.post('http://mocside.com:8000/api/convert-markdown', data={'markdown': desc})
+    prose = json.loads(res.text)
+    desc = connection._cmysql.escape_string(json.dumps(prose['data']).replace('code_block', 'codeBlock'))
     gradebook = connection._cmysql.escape_string(json.dumps({
         'students': [],
         'grades': {}
