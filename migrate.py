@@ -71,7 +71,7 @@ def create_assignment(connection, assignment_name, lab_id, data, due_date):
         query = f"""
         INSERT INTO
           `assignments` (`name`, `description`, `python_starter`, `python_model`, `lab_id`, `published`, `created_at`, `updated_at`, `gradebook`)
-        VALUES ('{assignment_name}', '{desc.decode('utf-8')}', '{starter}', '[]', {lab_id}, 1, '{now_format}', '{now_format}', '{gradebook.decode('utf-8')}');
+        VALUES ('{assignment_name}', '{desc.decode('utf-8')}', '{starter.decode('utf-8')}', '{model.decode('utf-8')}', {lab_id}, 1, '{now_format}', '{now_format}', '{gradebook.decode('utf-8')}');
         """
         execute_query(connection, query)
 
