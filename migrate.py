@@ -8,7 +8,6 @@ from mysql.connector import Error
 from datetime import datetime, timedelta
 from functools import cache  # @cache decorator will save redoing queries.
 import argparse
-import calendar
 import requests
 
 parser = argparse.ArgumentParser(
@@ -42,9 +41,11 @@ def create_assignment(connection, assignment_name, lab_id, data, due_date):
     lang, starter, model, desc = data
     starter = connection._cmysql.escape_string(starter)
     model = connection._cmysql.escape_string(model)
-    res = requests.post('http://mocside.com:8000/api/convert-markdown', data={'markdown': desc})
+    res = requests.post(
+        'http://mocside.com:8000/api/convert-markdown', data={'markdown': desc})
     prose = json.loads(res.text)
-    desc = connection._cmysql.escape_string(json.dumps(prose['data']).replace('code_block', 'codeBlock'))
+    desc = connection._cmysql.escape_string(json.dumps(
+        prose['data']).replace('code_block', 'codeBlock'))
     gradebook = connection._cmysql.escape_string(json.dumps({
         'students': [],
         'grades': {}
@@ -315,7 +316,8 @@ def main(due_date):
                 tc_flavor = tc['unitTestFlavor']
                 tc_code = connection._cmysql.escape_string(tc['unitTestCode'])
                 tc_compare = 'unit'
-                payload = (tc_title, tc_points, tc_code, tc_flavor, tc_feedback, tc_compare)
+                payload = (tc_title, tc_points, tc_code,
+                           tc_flavor, tc_feedback, tc_compare)
                 create_test_case(connection, problem_id, payload)
             else:
                 tc_in = connection._cmysql.escape_string(tc['stdin'])
