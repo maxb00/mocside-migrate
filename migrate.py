@@ -70,7 +70,7 @@ def create_assignment(connection, assignment_name, lab_id, data, due_date):
     else:
         query = f"""
         INSERT INTO
-          `assignments` (`name`, `description`, `python_starter`, `python_model`, `lab_id`, `published`, `created_at`, `updated_at`, `due_date` `gradebook`)
+          `assignments` (`name`, `description`, `python_starter`, `python_model`, `lab_id`, `published`, `created_at`, `updated_at`, `due_date`, `gradebook`)
         VALUES ('{assignment_name}', '{desc.decode('utf-8')}', '{starter.decode('utf-8')}', '{model.decode('utf-8')}', {lab_id}, 1, '{now_format}', '{now_format}', '{due_date.strftime("%Y-%m-%d %H:%M:%S")}', '{gradebook.decode('utf-8')}');
         """
         execute_query(connection, query)
