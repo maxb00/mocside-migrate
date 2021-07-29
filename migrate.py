@@ -125,7 +125,7 @@ def create_test_case(connection, problem_id, data):
             VALUES ('{title}', {problem_id}, '{code.decode('utf-8')}', '{flavor}', {points}, '{compare}', '{feedback.decode('utf-8')}', '{now_format}', '{now_format}');
             """
             execute_query(connection, query)
-        else if flavor == 'py3_unittest':
+        elif flavor == 'py3_unittest':
             # py unit test
             query = f"""
             INSERT INTO
