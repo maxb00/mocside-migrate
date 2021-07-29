@@ -48,8 +48,8 @@ def create_assignment(connection, assignment_name, lab_id, data, due_date):
     # why? don't ask.
     while res.status_code == 429:
         # we got rate limited. slow down.
-        print("Rate limited. Sleeping for 2 seconds(?).")
-        sleep(2) # sleep for a second to give the API time to recover
+        print("Rate limited. Sleeping for 61 seconds.")
+        sleep(61) # sleep for a second to give the API time to recover
         res = requests.post(
             'http://mocside.com:8000/api/convert-markdown', data={'markdown': desc})
 
