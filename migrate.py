@@ -1,6 +1,5 @@
 # migrate.py
 # Converts coding rooms json data into mocside MySQL inserts.
-# TODO: implement unsorted labs
 
 import json
 import mysql.connector

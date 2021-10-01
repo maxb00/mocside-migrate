@@ -32,3 +32,4 @@ FUTURE USE
 CURRENT ISSUES
   * MocsIDE does not support unit testing. Coding Rooms does. This causes issues
   when importing, because the two (stdout compare and unit testing) don't translate well.
+    -> fixed, implemented unit testing
