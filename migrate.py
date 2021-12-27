@@ -350,7 +350,7 @@ def main(due_date):
                     tc_compare = 'flexible'
                 elif tc_compare == 'equals':
                     tc_compare = 'exact'
-                    tc_out += '\n'
+                    tc_out = str(tc_out) + '\n'
                 # else, leave it and deal after, I guess. Regex is in form.
                 # we are ready for an insert
                 payload = (tc_title, tc_points, tc_in,
