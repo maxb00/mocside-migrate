@@ -7,7 +7,7 @@ HOW TO USE
 If this is a fresh install, build a python venv (at least version 3.9) in the
 home directory. Install the dependencies (python -m pip install -r requirements.txt),
 and then you can run the migration using the command
-  python3.9 migrate.py -i [fsc_id, default 1237419] -p ["/path/to/migration/file"]
+  python3.9 migrate.py -i [fsc_id, default 1237419] -p ["/path/to/migration/file"] -t [days, default 90]
 
 If this is an established install, I've probably already made the environment.
 Activate it (on Linux) with "source /home/max/mocside-migrate/bin/activate",

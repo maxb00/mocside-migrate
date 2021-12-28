@@ -13,11 +13,11 @@ from time import sleep
 parser = argparse.ArgumentParser(
     description='Designate file location and user ID.')
 parser.add_argument('-i', '--fscid', metavar='fscid', type=int,
-                    nargs=1, help='Set owner fsc_id', default=1237419)
+                    nargs=1, help='Set owner fsc_id', default=[1237419])
 parser.add_argument('-p', '--path', metavar='path', type=str, nargs=1,
                     help='The file path of course to be imported', required=True)
 parser.add_argument('-t', '--runtime', metavar='runtime', type=int, nargs=1,
-                    help='The number of days to run the course for. To be used in default due dates.', default=31)
+                    help='The number of days to run the course for. To be used in default due dates.', default=[90])
 args = parser.parse_args()
 
 USER_ID = args.fscid[0]
