@@ -55,7 +55,6 @@ def create_assignment(connection, assignment_name, lab_id, data, due_date):
     prose = json.loads(res.text)
     desc = connection._cmysql.escape_string(json.dumps(
         prose['data']).replace('code_block', 'codeBlock'))
-    desc = desc.replace('list_item', 'listItem').replace('bullet_list', 'bulletList')
     gradebook = connection._cmysql.escape_string(json.dumps({
         'students': [],
         'grades': {}
