@@ -55,6 +55,7 @@ def create_assignment(connection, assignment_name, lab_id, data, due_date):
     prose = json.loads(res.text)
     desc = connection._cmysql.escape_string(json.dumps(
         prose['data']).replace('code_block', 'codeBlock'))
+    desc = desc.replace('list_item', 'listItem').replace('bullet_list', 'bulletList')
     gradebook = connection._cmysql.escape_string(json.dumps({
         'students': [],
         'grades': {}
@@ -62,15 +63,15 @@ def create_assignment(connection, assignment_name, lab_id, data, due_date):
     if lang == 'java':
         query = f"""
         INSERT INTO
-          `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`, `created_at`, `updated_at`, `due_date`, `gradebook`)
-        VALUES ('{assignment_name}', '{desc.decode('utf-8')}', '{starter.decode('utf-8')}', '{model.decode('utf-8')}', {lab_id}, 1, '{now_format}', '{now_format}', '{due_date.strftime("%Y-%m-%d %H:%M:%S")}', '{gradebook.decode('utf-8')}');
+          `assignments` (`name`, `description`, `java_starter`, `java_model`, `lab_id`, `published`, `created_at`, `updated_at`, `due_date`, `due_date_utc`, `gradebook`)
+        VALUES ('{assignment_name}', '{desc.decode('utf-8')}', '{starter.decode('utf-8')}', '{model.decode('utf-8')}', {lab_id}, 1, '{now_format}', '{now_format}', '{due_date.strftime("%Y-%m-%d %H:%M:%S")}', '{due_date.timestamp()*1e3}' '{gradebook.decode('utf-8')}');
         """
         execute_query(connection, query)
     else:
         query = f"""
         INSERT INTO
-          `assignments` (`name`, `description`, `python_starter`, `python_model`, `lab_id`, `published`, `created_at`, `updated_at`, `due_date`, `gradebook`)
-        VALUES ('{assignment_name}', '{desc.decode('utf-8')}', '{starter.decode('utf-8')}', '{model.decode('utf-8')}', {lab_id}, 1, '{now_format}', '{now_format}', '{due_date.strftime("%Y-%m-%d %H:%M:%S")}', '{gradebook.decode('utf-8')}');
+          `assignments` (`name`, `description`, `python_starter`, `python_model`, `lab_id`, `published`, `created_at`, `updated_at`, `due_date`, `due_date_utc`, `gradebook`)
+        VALUES ('{assignment_name}', '{desc.decode('utf-8')}', '{starter.decode('utf-8')}', '{model.decode('utf-8')}', {lab_id}, 1, '{now_format}', '{now_format}', '{due_date.strftime("%Y-%m-%d %H:%M:%S")}', '{due_date.timestamp()*1e3}' '{gradebook.decode('utf-8')}');
         """
         execute_query(connection, query)
 
