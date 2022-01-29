@@ -23,8 +23,6 @@ args = parser.parse_args()
 USER_ID = args.fscid[0]
 FILENAME = args.path[0]
 CUST_LENGTH = args.runtime[0]
-now = datetime.now()
-now_format = now.strftime("%Y-%m-%d %H:%M:%S")
 with open("auth.json", encoding='utf8') as f:
     auth = json.load(f)
 
@@ -35,6 +33,8 @@ def add_days(sourcedate, days):
     new_date = sourcedate + change
     return new_date
 
+now = add_days(datetime.now(), -1)
+now_format = now.strftime("%Y-%m-%d %H:%M:%S")
 
 # create assignment from data
 def create_assignment(connection, assignment_name, lab_id, data, due_date):
